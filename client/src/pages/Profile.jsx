@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { useState, useRef } from 'react';
-import { userService, uploadService } from '../services';
+import { userService, uploadService, followerService } from '../services';
 import { useAuth } from '../context/AuthContext';
 import PostCard from '../components/PostCard';
 import UserAvatar from '../components/UserAvatar';
+import toast from 'react-hot-toast';
 
 const Profile = () => {
   const { userId } = useParams();
@@ -25,6 +26,41 @@ const Profile = () => {
   const { data: postsData, isLoading: postsLoading } = useQuery({
     queryKey: ['userPosts', userId],
     queryFn: () => userService.getUserPosts(userId, 1, 20),
+  });
+
+  // Check if current user is following this profile
+  const { data: followStatusData } = useQuery({
+    queryKey: ['followStatus', userId],
+    queryFn: () => followerService.checkFollowStatus(userId),
+    enabled: !!currentUser && !isOwnProfile,
+  });
+
+  const followMutation = useMutation({
+    mutationFn: followerService.followUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['followStatus', userId]);
+      queryClient.invalidateQueries(['profile', userId]);
+      toast.success('Following user');
+    },
+    onError: (error) => {
+      console.error('Follow error:', error);
+      const message = error.response?.data?.error || error.response?.data?.message || 'Failed to follow user';
+      toast.error(message);
+    },
+  });
+
+  const unfollowMutation = useMutation({
+    mutationFn: followerService.unfollowUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['followStatus', userId]);
+      queryClient.invalidateQueries(['profile', userId]);
+      toast.success('Unfollowed user');
+    },
+    onError: (error) => {
+      console.error('Unfollow error:', error);
+      const message = error.response?.data?.error || error.response?.data?.message || 'Failed to unfollow user';
+      toast.error(message);
+    },
   });
 
   const updateProfilePicMutation = useMutation({
@@ -174,11 +210,34 @@ const Profile = () => {
               </button>
             </div>
             <p className="text-gray-500 mt-1">Age: {user?.age} years old</p>
+            
+            {/* Follow Button */}
+            {!isOwnProfile && currentUser && (
+              <div className="mt-4">
+                {followStatusData?.data?.isFollowing ? (
+                  <button
+                    onClick={() => unfollowMutation.mutate(userId)}
+                    disabled={unfollowMutation.isPending}
+                    className="btn btn-secondary"
+                  >
+                    {unfollowMutation.isPending ? 'Unfollowing...' : 'Unfollow'}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => followMutation.mutate(userId)}
+                    disabled={followMutation.isPending}
+                    className="btn btn-primary"
+                  >
+                    {followMutation.isPending ? 'Following...' : 'Follow'}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t">
+        <div className="grid grid-cols-4 gap-4 mt-6 pt-6 border-t">
           <div className="text-center">
             <p className="text-2xl font-bold text-gray-900">{user?.post_count || 0}</p>
             <p className="text-gray-600">Posts</p>
@@ -186,6 +245,10 @@ const Profile = () => {
           <div className="text-center">
             <p className="text-2xl font-bold text-gray-900">{user?.followers_count || 0}</p>
             <p className="text-gray-600">Followers</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-900">{user?.following_count || 0}</p>
+            <p className="text-gray-600">Following</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-gray-900">{user?.total_likes || 0}</p>

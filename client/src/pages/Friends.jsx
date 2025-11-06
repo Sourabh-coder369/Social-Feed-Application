@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { friendService, userService } from '../services';
 import toast from 'react-hot-toast';
 import UserAvatar from '../components/UserAvatar';
+import FollowButton from '../components/FollowButton';
 
 const Friends = () => {
   const queryClient = useQueryClient();
@@ -134,13 +135,16 @@ const Friends = () => {
                       <p className="text-sm text-gray-600">{user.email}</p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleSendRequestToUser(user.user_id)}
-                    disabled={sendRequestMutation.isPending}
-                    className="btn btn-primary btn-sm"
-                  >
-                    {sendRequestMutation.isPending ? '...' : 'Send Request'}
-                  </button>
+                  <div className="flex gap-2">
+                    <FollowButton userId={user.user_id} size="sm" />
+                    <button
+                      onClick={() => handleSendRequestToUser(user.user_id)}
+                      disabled={sendRequestMutation.isPending}
+                      className="btn btn-primary btn-sm"
+                    >
+                      {sendRequestMutation.isPending ? '...' : 'Send Request'}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
