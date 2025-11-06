@@ -30,12 +30,23 @@ async function getUserProfile(req, res) {
       .where({ user_id: id })
       .select('phone_number');
 
+    // Get follower counts
+    const [followersCount] = await db('Followers')
+      .where('followed_user_id', id)
+      .count('* as count');
+
+    const [followingCount] = await db('Followers')
+      .where('user_id', id)
+      .count('* as count');
+
     // Remove password hash from response
     delete user.password_hash;
 
     return successResponse(res, {
       ...user,
-      phone_numbers: phoneNumbers.map(p => p.phone_number)
+      phone_numbers: phoneNumbers.map(p => p.phone_number),
+      followers_count: followersCount.count,
+      following_count: followingCount.count
     });
   } catch (error) {
     console.error('Get user profile error:', error);

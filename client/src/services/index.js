@@ -180,3 +180,35 @@ export const uploadService = {
     return response.data;
   },
 };
+
+export const followerService = {
+  followUser: async (userId) => {
+    const response = await api.post(`/api/followers/${userId}/follow`);
+    return response.data;
+  },
+
+  unfollowUser: async (userId) => {
+    const response = await api.delete(`/api/followers/${userId}/unfollow`);
+    return response.data;
+  },
+
+  getFollowers: async (userId) => {
+    const response = await api.get(`/api/followers/${userId}/followers`);
+    return response.data;
+  },
+
+  getFollowing: async (userId) => {
+    const response = await api.get(`/api/followers/${userId}/following`);
+    return response.data;
+  },
+
+  checkFollowStatus: async (userId) => {
+    const response = await api.get(`/api/followers/${userId}/check`);
+    return response.data;
+  },
+
+  getFollowerStats: async (userId) => {
+    const response = await api.get(`/api/followers/${userId}/stats`);
+    return response.data;
+  },
+};
