@@ -76,12 +76,24 @@ jobs:
         run: npm run migrate
         env:
           NODE_ENV: test
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: root_password
+          DB_NAME: social_feed_test
+          JWT_SECRET: test_jwt_secret_key_for_ci_testing
 
       - name: Run tests
         working-directory: ./server
         run: npm test
         env:
           NODE_ENV: test
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: root_password
+          DB_NAME: social_feed_test
+          JWT_SECRET: test_jwt_secret_key_for_ci_testing
 
       - name: Run linting
         working-directory: ./server

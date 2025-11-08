@@ -54,11 +54,40 @@ jobs:
           JWT_EXPIRES_IN=7d
           EOF
 
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            if mysqladmin ping -h"127.0.0.1" -P"3306" -u"root" -p"root_password" --silent; then
+              echo "MySQL is up"
+              break
+            fi
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      - name: Run database migrations
+        working-directory: ./server
+        run: npm run migrate
+        env:
+          NODE_ENV: test
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: root_password
+          DB_NAME: social_feed_test
+          JWT_SECRET: test_jwt_secret_key
+
       - name: Run backend tests
         working-directory: ./server
         run: npm test
         env:
           NODE_ENV: test
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: root_password
+          DB_NAME: social_feed_test
+          JWT_SECRET: test_jwt_secret_key
 
   frontend-test:
     name: Frontend Tests
