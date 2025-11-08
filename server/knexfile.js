@@ -13,7 +13,10 @@ const knexConfig = {
   },
   pool: {
     min: 2,
-    max: 10
+    max: 10,
+    acquireTimeoutMillis: 30000, // 30 seconds to acquire connection
+    idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
+    propagateCreateError: false // Don't crash on connection errors in tests
   },
   migrations: {
     directory: './migrations',

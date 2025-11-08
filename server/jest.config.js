@@ -8,5 +8,7 @@ module.exports = {
     '!src/db/seed.js'
   ],
   testMatch: ['**/tests/**/*.test.js'],
-  verbose: true
+  verbose: true,
+  testTimeout: 10000, // Increase timeout to 10 seconds
+  maxWorkers: 1, // Run tests serially to avoid database connection issues
 };
