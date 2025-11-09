@@ -2,6 +2,7 @@
 -- MySQL 8.0+
 
 -- Drop tables if they exist (in reverse order of dependencies)
+DROP TABLE IF EXISTS Followers;
 DROP TABLE IF EXISTS Notifications;
 DROP TABLE IF EXISTS Friends;
 DROP TABLE IF EXISTS Likes;
@@ -107,4 +108,17 @@ CREATE TABLE Notifications (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_notification_user FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
   INDEX idx_notifications_user_read (user_id, is_read)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Followers Table
+CREATE TABLE Followers (
+  follower_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  followed_user_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_follower_user FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+  CONSTRAINT fk_followed_user FOREIGN KEY (followed_user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+  CONSTRAINT unique_follow UNIQUE (user_id, followed_user_id),
+  INDEX idx_followers_user (user_id),
+  INDEX idx_followers_followed_user (followed_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
