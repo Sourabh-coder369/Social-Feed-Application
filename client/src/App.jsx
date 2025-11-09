@@ -10,6 +10,7 @@ import Feed from './pages/Feed';
 import Profile from './pages/Profile';
 import Friends from './pages/Friends';
 import Notifications from './pages/Notifications';
+import Following from './pages/Following';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -67,6 +68,15 @@ function App() {
                   <PrivateRoute>
                     <Navbar />
                     <Notifications />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/following"
+                element={
+                  <PrivateRoute>
+                    <Navbar />
+                    <Following />
                   </PrivateRoute>
                 }
               />

@@ -9,22 +9,20 @@ const UserAvatar = ({ user, size = 'md', className = '' }) => {
 
   const sizeClass = sizeClasses[size] || sizeClasses.md;
 
-  if (user?.profile_pic_URL) {
-    return (
-      <img
-        src={user.profile_pic_URL}
-        alt={`${user?.first_name} ${user?.last_name}`}
-        className={`rounded-full object-cover ${sizeClass} ${className}`}
-      />
-    );
-  }
+  // Get initials from first and last name
+  const getInitials = () => {
+    const firstInitial = user?.first_name?.charAt(0).toUpperCase() || '';
+    const lastInitial = user?.last_name?.charAt(0).toUpperCase() || '';
+    return firstInitial + lastInitial || '?';
+  };
 
+  // Always show initials (removed profile picture display)
   return (
     <div
-      className={`rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center ${sizeClass} ${className}`}
+      className={`rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center ${sizeClass} ${className}`}
     >
       <span className="text-white font-bold">
-        {user?.first_name?.charAt(0).toUpperCase() || '?'}
+        {getInitials()}
       </span>
     </div>
   );

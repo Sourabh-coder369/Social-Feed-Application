@@ -53,6 +53,12 @@ const Navbar = () => {
                 )}
               </Link>
               <Link
+                to="/following"
+                className="text-gray-500 hover:text-gray-900 inline-flex items-center px-1 pt-1 text-sm font-medium"
+              >
+                Following
+              </Link>
+              <Link
                 to="/notifications"
                 className="text-gray-500 hover:text-gray-900 inline-flex items-center px-1 pt-1 text-sm font-medium relative"
               >

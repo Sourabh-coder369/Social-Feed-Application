@@ -55,9 +55,8 @@ async function followUser(req, res) {
     // Create notification for the followed user
     await db('Notifications').insert({
       user_id: userId,
-      type: 'follow',
-      content: `${currentUserInfo.first_name} ${currentUserInfo.last_name} started following you`,
-      related_user_id: currentUserId
+      notification_type: 'other',
+      content: `${currentUserInfo.first_name} ${currentUserInfo.last_name} started following you`
     });
 
     console.log('✓ Notification created');
