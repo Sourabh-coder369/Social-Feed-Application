@@ -73,10 +73,12 @@ const Notifications = () => {
         </h1>
         {unreadCount > 0 && (
           <button
-            onClick={() => markReadMutation.mutate(null)}
-            className="btn btn-secondary"
+            type="button"
+            disabled={markReadMutation.isPending}
+            onClick={() => markReadMutation.mutate(undefined)}
+            className="btn btn-secondary disabled:opacity-50"
           >
-            Mark all as read
+            {markReadMutation.isPending ? 'Marking…' : 'Mark all as read'}
           </button>
         )}
       </div>
@@ -108,10 +110,12 @@ const Notifications = () => {
               <div className="flex space-x-2 ml-4">
                 {!notification.is_read && (
                   <button
+                    type="button"
+                    disabled={markReadMutation.isPending}
                     onClick={() => markReadMutation.mutate([notification.n_id])}
-                    className="text-primary-600 hover:text-primary-800 text-sm"
+                    className="text-primary-600 hover:text-primary-800 text-sm disabled:opacity-40"
                   >
-                    Mark read
+                    {markReadMutation.isPending ? 'Working…' : 'Mark read'}
                   </button>
                 )}
                 <button

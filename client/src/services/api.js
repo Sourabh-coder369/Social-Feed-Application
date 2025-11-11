@@ -27,11 +27,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+    const status = error.response?.status;
+    if (status === 401) {
+      // Only force logout + redirect if a token was present (i.e. user session expired)
+      const token = localStorage.getItem('token');
+      const requestUrl = error.config?.url || '';
+      const isAuthEndpoint = requestUrl.includes('/api/auth/login') || requestUrl.includes('/api/auth/register');
+      if (token && !isAuthEndpoint) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+      // For login/register failures (no token yet), just propagate the error so UI can show message
     }
     return Promise.reject(error);
   }

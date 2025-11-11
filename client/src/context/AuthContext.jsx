@@ -29,17 +29,25 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const response = await authService.login(credentials);
-      const { token, user } = response.data;
-      
+      const response = await authService.login(credentials); // raw API response data shape: { success, message, data }
+      // Expect response = { success: true, message: 'Login successful', data: { token, user } }
+      const { data: payload, success } = response;
+      if (!success) {
+        const msg = response.error || 'Login failed';
+        toast.error(msg);
+        return { success: false, error: msg };
+      }
+      const { token, user } = payload || {};
+      if (!token || !user) {
+        throw new Error('Invalid login response structure');
+      }
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
-      
       toast.success('Login successful!');
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.error || 'Login failed';
+      const message = error.response?.data?.error || error.message || 'Login failed';
       toast.error(message);
       return { success: false, error: message };
     }
@@ -47,17 +55,24 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await authService.register(userData);
-      const { token, user } = response.data;
-      
+      const response = await authService.register(userData); // shape: { success, message, data }
+      const { data: payload, success } = response;
+      if (!success) {
+        const msg = response.error || 'Registration failed';
+        toast.error(msg);
+        return { success: false, error: msg };
+      }
+      const { token, user } = payload || {};
+      if (!token || !user) {
+        throw new Error('Invalid registration response structure');
+      }
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
-      
       toast.success('Registration successful!');
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.error || 'Registration failed';
+      const message = error.response?.data?.error || error.message || 'Registration failed';
       toast.error(message);
       return { success: false, error: message };
     }

@@ -38,8 +38,7 @@ RETURNS INT
 DETERMINISTIC
 READS SQL DATA
 BEGIN
-  DECLARE total_likes INT;
-  
+  DECLARE total_likes INT;  
   -- Calculate total likes across all user's posts
   SELECT COALESCE(SUM(likes_count), 0) INTO total_likes
   FROM Posts

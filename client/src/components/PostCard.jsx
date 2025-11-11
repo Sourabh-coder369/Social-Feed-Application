@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { likeService, commentService, postService } from '../services';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import UserAvatar from './UserAvatar';
 
 const PostCard = ({ post, onUpdate }) => {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
@@ -66,6 +68,22 @@ const PostCard = ({ post, onUpdate }) => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this post?')) {
+      return;
+    }
+
+    try {
+      await postService.deletePost(post.post_id);
+      toast.success('Post deleted successfully');
+      if (onUpdate) {
+        onUpdate(); // Refresh the posts list
+      }
+    } catch (error) {
+      toast.error('Failed to delete post');
+    }
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -78,29 +96,55 @@ const PostCard = ({ post, onUpdate }) => {
   return (
     <div className="card mb-4">
       {/* User Info */}
-      <div className="flex items-center mb-4">
-        <div 
-          className="cursor-pointer hover:opacity-80"
-          onClick={() => navigate(`/profile/${post.user_id}`)}
-        >
-          <UserAvatar 
-            user={{
-              profile_pic_URL: post.profile_pic_URL,
-              first_name: post.first_name,
-              last_name: post.last_name
-            }} 
-            size="sm"
-          />
-        </div>
-        <div className="ml-3">
-          <p 
-            className="font-semibold text-gray-900 cursor-pointer hover:text-primary-600 transition-colors"
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <div 
+            className="cursor-pointer hover:opacity-80"
             onClick={() => navigate(`/profile/${post.user_id}`)}
           >
-            {post.author_name || `${post.first_name} ${post.last_name}`}
-          </p>
-          <p className="text-sm text-gray-500">{formatDate(post.created_at)}</p>
+            <UserAvatar 
+              user={{
+                profile_pic_URL: post.profile_pic_URL,
+                first_name: post.first_name,
+                last_name: post.last_name
+              }} 
+              size="sm"
+            />
+          </div>
+          <div className="ml-3">
+            <p 
+              className="font-semibold text-gray-900 cursor-pointer hover:text-primary-600 transition-colors"
+              onClick={() => navigate(`/profile/${post.user_id}`)}
+            >
+              {post.author_name || `${post.first_name} ${post.last_name}`}
+            </p>
+            <p className="text-sm text-gray-500">{formatDate(post.created_at)}</p>
+          </div>
         </div>
+        
+        {/* Delete button - only show if user owns the post */}
+        {currentUser && currentUser.user_id === post.user_id && (
+          <button
+            onClick={handleDelete}
+            className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors"
+            title="Delete post"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Post Content */}

@@ -154,10 +154,10 @@ export const notificationService = {
     return response.data;
   },
 
-  markAsRead: async (notificationIds = null) => {
-    const response = await api.post('/api/notifications/mark-read', {
-      notificationIds,
-    });
+  markAsRead: async (notificationIds = undefined) => {
+    // If no IDs provided, send an empty body so validator treats the field as absent
+    const payload = Array.isArray(notificationIds) ? { notificationIds } : {};
+    const response = await api.post('/api/notifications/mark-read', payload);
     return response.data;
   },
 
